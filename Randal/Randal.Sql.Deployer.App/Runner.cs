@@ -37,7 +37,15 @@ namespace Randal.Sql.Deployer.App
 
 			using (var reader = new FileInfo(configPath).OpenText())
 				_config = JsonConvert.DeserializeObject<ScriptDeployerConfig>(reader.ReadToEnd());
-		}
+
+            _config.ProjectsTableConfig.ExecuteUsing = true;
+
+            if (string.IsNullOrEmpty(settings.DeploymentsDb) == false)
+            {
+                _config.ProjectsTableConfig.Database = settings.DeploymentsDb;
+                _config.ProjectsTableConfig.ExecuteUsing = false;
+            }
+        }
 
 		public RunnerResolution Go()
 		{
@@ -51,8 +59,20 @@ namespace Randal.Sql.Deployer.App
 				{
 					LogOptions();
 
-					_logger.PostEntry("opening connection to server", _settings.Server);
-					connectionManager.OpenConnection(_settings.Server, "master");
+                    string dbName = "master";
+                    if (string.IsNullOrEmpty(_settings.DeploymentsDb) == false) dbName = _settings.DeploymentsDb;
+
+                    if (string.IsNullOrEmpty(_settings.ConnectionString))
+                    {
+                        _logger.PostEntry("opening connection to server", _settings.Server);
+                        connectionManager.OpenConnection(_settings.Server, dbName);
+                    }
+                    else
+                    {
+                        _logger.PostEntry("opening connection to server with supplied connectionString", _settings.Server);
+                        _logger.PostEntry(_settings.ConnectionString, _settings.Server);
+                        connectionManager.OpenConnection(_settings.Server, dbName, _settings.ConnectionString);
+                    }
 
 					if (_settings.UseTransaction)
 					{

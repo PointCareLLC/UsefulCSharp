@@ -198,7 +198,8 @@ namespace Randal.Sql.Deployer.Process
 
 			_logger.PostEntry("Looking up project '{0}'", Project.Configuration.Project);
 
-			_writer.WriteLine("Use " + DeployerConfig.ProjectsTableConfig.Database);
+            if (DeployerConfig.ProjectsTableConfig.ExecuteUsing)
+                _writer.WriteLine("Use " + DeployerConfig.ProjectsTableConfig.Database);
 
 			_writer.WriteLine("if( ({0}) >= '{1}') begin", readDbVersion, Project.Configuration.Version);
 			_writer.WriteLine("\traiserror('Project is older than current database version.', 17, 1)");
@@ -207,12 +208,14 @@ namespace Randal.Sql.Deployer.Process
 		}
 
 		private void WriteCommand(string database, string command, params object[] values)
-		{
-			_writer.WriteLine("Use " + database);
-			_writer.WriteLine(values.Length == 0 ? command : string.Format(command, values));
-			_writer.WriteLine();
-			_writer.WriteLine();
-		}
+        {
+            if (DeployerConfig.ProjectsTableConfig.ExecuteUsing)
+                _writer.WriteLine("Use " + database);
+
+            _writer.WriteLine(values.Length == 0 ? command : string.Format(command, values));
+            _writer.WriteLine();
+            _writer.WriteLine();
+        }
 
 		public override void Dispose()
 		{

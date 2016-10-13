@@ -19,7 +19,7 @@ namespace Randal.Sql.Deployer.Scripts
 	[DataContract]
 	public sealed class ScriptSettings
 	{
-		public ScriptSettings() : this(30)
+		public ScriptSettings() : this(180)
 		{
 		}
 

@@ -113,7 +113,7 @@ namespace Randal.Sql.Deployer.IO
 				if (Configuration.Vars.TryGetValue(key, out value) == false)
 				{
 					value = string.Empty;
-					validationMessages.Add("Failed to find value to replace key '" + key + "'.");
+					//validationMessages.Add("Failed to find value to replace key '" + key + "'.");
 				}
 
 				return value;

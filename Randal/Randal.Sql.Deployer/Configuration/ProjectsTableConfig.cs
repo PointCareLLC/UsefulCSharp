@@ -28,7 +28,10 @@ namespace Randal.Sql.Deployer.Configuration
 		[JsonProperty(Required = Required.Default)]
 		public string Database { get; set; }
 
-		[JsonProperty(Required = Required.Default)]
+        [JsonProperty(Required = Required.Default)]
+        public bool ExecuteUsing { get; set; }
+
+        [JsonProperty(Required = Required.Default)]
 		public string CreateTable { get; set; }
 
 		[JsonProperty(Required = Required.Default)]

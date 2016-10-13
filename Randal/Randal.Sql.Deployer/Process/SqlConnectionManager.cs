@@ -25,7 +25,8 @@ namespace Randal.Sql.Deployer.Process
 		IReadOnlyList<string> DatabaseNames { get; }
 
 		void OpenConnection(string newServer, string database, string userName, string password);
-		void OpenConnection(string newServer, string database);
+        void OpenConnection(string newServer, string database, string connectionString);
+        void OpenConnection(string newServer, string database);
 
 		void BeginTransaction();
 		void CommitTransaction();
@@ -53,28 +54,51 @@ namespace Randal.Sql.Deployer.Process
 
 		public void OpenConnection(string newServer, string database)
 		{
-			OpenConnection(newServer, database, null, null);
-		}
+			OpenConnection(newServer, database, null, null, null);
+        }
 
-		public void OpenConnection(string server, string database, string userName, string password)
+        public void OpenConnection(string newServer, string database, string connectionString)
+        {
+            OpenConnection(newServer, database, null, null, connectionString);
+        }
+
+        public void OpenConnection(string newServer, string database, string userName, string password)
+        {
+            OpenConnection(newServer, database, null, null, null);
+        }
+
+        public void OpenConnection(string server, string database, string userName, string password, string connectionString)
 		{
 			_scnBuilder.DataSource = server;
 			_scnBuilder.InitialCatalog = database;
 			_scnBuilder.ConnectTimeout = 30;
 
-			if (string.IsNullOrEmpty(userName) || password == null)
+			if (string.IsNullOrEmpty(connectionString) == false)
+            {
+                _connection = GetNewSqlConnection(connectionString);
+            }
+            else if (string.IsNullOrEmpty(userName) || password == null)
+            {
 				_scnBuilder.IntegratedSecurity = true;
+                _connection = GetNewSqlConnection(_scnBuilder.ConnectionString);
+            }
 			else
 			{
 				_scnBuilder.IntegratedSecurity = false;
 				_scnBuilder.UserID = userName;
 				_scnBuilder.Password = password;
-			}
+                _connection = GetNewSqlConnection(_scnBuilder.ConnectionString);
+            }
 
-			_connection = GetNewSqlConnection(_scnBuilder);
-
-			GetDatabaseNames();
-		}
+            if (database.Equals("master", StringComparison.CurrentCultureIgnoreCase))
+            {
+                GetDatabaseNames();
+            }
+            else
+            {
+                _databaseNames.Add(database);
+            }
+        }
 
 		public void BeginTransaction()
 		{
@@ -134,11 +158,11 @@ namespace Randal.Sql.Deployer.Process
 			}
 		}
 
-		private static SqlConnection GetNewSqlConnection(DbConnectionStringBuilder builder)
-		{
-			var connection = new SqlConnection(builder.ConnectionString);
+        private static SqlConnection GetNewSqlConnection(string connectionString)
+        {
+            var connection = new SqlConnection(connectionString);
 
-			connection.Open();
+            connection.Open();
 			if (connection.State == ConnectionState.Open)
 				return connection;
 
@@ -160,7 +184,7 @@ namespace Randal.Sql.Deployer.Process
 			_databaseNames.Sort();
 		}
 
-		private SqlConnection _connection;
+        private SqlConnection _connection;
 		private SqlTransaction _transaction;
 		private readonly SqlConnectionStringBuilder _scnBuilder;
 		private readonly ISqlCommandWrapperFactory _commandWrapperFactory;

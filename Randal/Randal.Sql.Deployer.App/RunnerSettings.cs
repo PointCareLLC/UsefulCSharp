@@ -21,7 +21,9 @@ namespace Randal.Sql.Deployer.App
 		IRollingFileSettings FileLoggerSettings { get; }
 		string ScriptProjectFolder { get; }
 		string Server { get; }
-		bool NoTransaction { get; }
+        string ConnectionString { get; }
+        string DeploymentsDb { get; }
+        bool NoTransaction { get; }
 		bool UseTransaction { get; }
 		bool ShouldRollback { get; }
 		bool CheckFilesOnly { get; }
@@ -30,10 +32,10 @@ namespace Randal.Sql.Deployer.App
 
 	public sealed class RunnerSettings : IRunnerSettings
 	{
-		public RunnerSettings(string scriptProjectFolder, string logFolder, string server, 
-			bool rollback = false, bool noTransaction = false, bool checkFilesOnly = false, bool bypassCheck = false)
-		{
-			if(checkFilesOnly && bypassCheck)
+        public RunnerSettings(string scriptProjectFolder, string logFolder, string server, string connectionString, string deploymentsDb,
+            bool rollback = false, bool noTransaction = false, bool checkFilesOnly = false, bool bypassCheck = false)
+        {
+            if (checkFilesOnly && bypassCheck)
 				throw new ArgumentException("bypassCheck and checkFilesOnly cannot both be true.", "bypassCheck");
 
 			if(checkFilesOnly && (noTransaction || rollback == false))
@@ -41,7 +43,9 @@ namespace Randal.Sql.Deployer.App
 
 			_scriptProjectFolder = scriptProjectFolder;
 			_server = server;
-			_noTransaction = noTransaction;
+            _connectionString = connectionString;
+            _deploymentsDb = deploymentsDb;
+            _noTransaction = noTransaction;
 			_rollback = rollback;
 			_checkFilesOnly = checkFilesOnly;
 			_bypassCheck = bypassCheck;
@@ -55,7 +59,11 @@ namespace Randal.Sql.Deployer.App
 
 		public string Server { get { return _server; } }
 
-		public bool NoTransaction { get { return _noTransaction; } }
+        public string ConnectionString { get { return _connectionString; } }
+
+        public string DeploymentsDb { get { return _deploymentsDb; } }
+
+        public bool NoTransaction { get { return _noTransaction; } }
 
 		public bool UseTransaction { get { return _noTransaction == false; } }
 
@@ -67,6 +75,6 @@ namespace Randal.Sql.Deployer.App
 
 		private readonly bool _noTransaction, _checkFilesOnly, _rollback, _bypassCheck;
 		private readonly IRollingFileSettings _fileLoggerSettings;
-		private readonly string _scriptProjectFolder, _server;
-	}
+        private readonly string _scriptProjectFolder, _server, _connectionString, _deploymentsDb;
+    }
 }

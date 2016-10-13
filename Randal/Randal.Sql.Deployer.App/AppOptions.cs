@@ -24,7 +24,11 @@ namespace Randal.Sql.Deployer.App
 
 		public string Server { get; set; }
 
-		public bool NoTransaction { get; set; }
+        public string ConnectionString { get; set; }
+
+        public string DeploymentsDb { get; set; }
+
+        public bool NoTransaction { get; set; }
 
 		public bool Rollback { get; set; }
 
@@ -40,7 +44,9 @@ namespace Randal.Sql.Deployer.App
 					options.ProjectFolder,
 					options.LogFolder,
 					options.Server,
-					options.Rollback,
+                    options.ConnectionString,
+                    options.DeploymentsDb,
+                    options.Rollback,
 					options.NoTransaction,
 					options.CheckFilesOnly,
 					options.BypassCheck
@@ -69,7 +75,17 @@ namespace Randal.Sql.Deployer.App
 				.WithDescription(ServerHelpText)
 				.Required();
 
-			Setup(x => x.NoTransaction)
+            Setup(x => x.ConnectionString)
+                .As('z', "connectionstring")
+                .WithDescription(ConnectionStringHelpText)
+                .SetDefault("");
+
+            Setup(x => x.DeploymentsDb)
+                .As('d', "deploymentsdb")
+                .WithDescription(DeploymentsDbText)
+                .SetDefault("");
+
+            Setup(x => x.NoTransaction)
 				.As('n', "noTrans")
 				.WithDescription(NoTransactionHelpText)
 				.SetDefault(false);
@@ -98,7 +114,9 @@ namespace Randal.Sql.Deployer.App
 		public const string
 			ProjectFolderHelpText = @"The project folder containg the config.json or config.xml and all associated SQL scripts.",
 			ServerHelpText = @"The SQL Server that the project will be deployed against.",
-			LogFolderHelpText = @"Directory where the log file will be written.",
+            ConnectionStringHelpText = @"The connectoin string to the SQL Server that the project will be deployed against.",
+            DeploymentsDbText = @"The name of the database to save deployment information to. If blank, the application uses Deployments.",
+            LogFolderHelpText = @"Directory where the log file will be written.",
 			NoTransactionHelpText = "Do not use a transaction to execute scripts.",
 			RollbackHelptText = "Rollback the transaction, even if there were no errors.",
 			CheckFilesOnlyText = "Checks the scripts against provided patterns and no scripts will be deployed.  Cannot be used with noTrans.",

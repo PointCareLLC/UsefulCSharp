@@ -55,37 +55,47 @@ namespace Randal.Sql.Deployer.Process
 				_sqlCommand.Transaction = transaction;
 		}
 
-		public void Execute(string databaseName, int timeout = 30)
-		{
-			if (databaseName == null)
-				throw new ArgumentNullException("databaseName");
+        public void Execute(string databaseName, int timeout = 30)
+        {
+            if (databaseName == null)
+                throw new ArgumentNullException("databaseName");
 
-			if (timeout <= 0)
-				timeout = 30;
+            if (timeout <= 0)
+                timeout = 30;
 
-			_sqlCommand.Connection.ChangeDatabase(databaseName);
-			_sqlCommand.CommandTimeout = timeout;
-			_sqlCommand.ExecuteNonQuery();
-		}
+            //only change databases if a different database is being requested
+            if (_sqlCommand.Connection.Database.Equals(databaseName, StringComparison.CurrentCultureIgnoreCase) == false)
+            {
+                _sqlCommand.Connection.ChangeDatabase(databaseName);
+            }
 
-		public SqlDataReader ExecuteReader(string databaseName, int timeout = 30)
-		{
-			if (databaseName == null)
-				throw new ArgumentNullException("databaseName");
+            _sqlCommand.CommandTimeout = timeout;
+            _sqlCommand.ExecuteNonQuery();
+        }
 
-			if (timeout <= 0)
-				timeout = 30;
+        public SqlDataReader ExecuteReader(string databaseName, int timeout = 30)
+        {
+            if (databaseName == null)
+                throw new ArgumentNullException("databaseName");
 
-			_sqlCommand.Connection.ChangeDatabase(databaseName);
-			_sqlCommand.CommandTimeout = timeout;
-			return _sqlCommand.ExecuteReader();
-		}
+            if (timeout <= 0)
+                timeout = 30;
 
-		public void Dispose()
-		{
-			_sqlCommand.Dispose();
-		}
+            //only change databases if a different database is being requested
+            if (_sqlCommand.Connection.Database.Equals(databaseName, StringComparison.CurrentCultureIgnoreCase) == false)
+            {
+                _sqlCommand.Connection.ChangeDatabase(databaseName);
+            }
 
-		private readonly SqlCommand _sqlCommand;
-	}
+            _sqlCommand.CommandTimeout = timeout;
+            return _sqlCommand.ExecuteReader();
+        }
+
+        public void Dispose()
+        {
+            _sqlCommand.Dispose();
+        }
+
+        private readonly SqlCommand _sqlCommand;
+    }
 }
