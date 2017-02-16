@@ -28,12 +28,13 @@ namespace Randal.Sql.Deployer.App
 		bool ShouldRollback { get; }
 		bool CheckFilesOnly { get; }
 		bool BypassCheck { get; }
-	}
+        bool ForceInstall { get; }
+    }
 
 	public sealed class RunnerSettings : IRunnerSettings
 	{
         public RunnerSettings(string scriptProjectFolder, string logFolder, string server, string connectionString, string deploymentsDb,
-            bool rollback = false, bool noTransaction = false, bool checkFilesOnly = false, bool bypassCheck = false)
+            bool rollback = false, bool noTransaction = false, bool checkFilesOnly = false, bool bypassCheck = false, bool forceInstall = false)
         {
             if (checkFilesOnly && bypassCheck)
 				throw new ArgumentException("bypassCheck and checkFilesOnly cannot both be true.", "bypassCheck");
@@ -49,6 +50,7 @@ namespace Randal.Sql.Deployer.App
 			_rollback = rollback;
 			_checkFilesOnly = checkFilesOnly;
 			_bypassCheck = bypassCheck;
+            _forceInstall = forceInstall;
 
 			_fileLoggerSettings = new RollingFileSettings(logFolder, "SqlScriptDeployer");
 		}
@@ -73,7 +75,9 @@ namespace Randal.Sql.Deployer.App
 
 		public bool BypassCheck { get { return _bypassCheck; } }
 
-		private readonly bool _noTransaction, _checkFilesOnly, _rollback, _bypassCheck;
+        public bool ForceInstall { get { return _forceInstall; } }
+
+        private readonly bool _noTransaction, _checkFilesOnly, _rollback, _bypassCheck, _forceInstall;
 		private readonly IRollingFileSettings _fileLoggerSettings;
         private readonly string _scriptProjectFolder, _server, _connectionString, _deploymentsDb;
     }

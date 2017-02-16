@@ -36,7 +36,9 @@ namespace Randal.Sql.Deployer.App
 
 		public bool BypassCheck { get; set; }
 
-		public string ExchangePath { get; set; }
+        public bool ForceInstall { get; set; }
+
+        public string ExchangePath { get; set; }
 
 		public static explicit operator RunnerSettings(AppOptions options)
 		{
@@ -49,7 +51,8 @@ namespace Randal.Sql.Deployer.App
                     options.Rollback,
 					options.NoTransaction,
 					options.CheckFilesOnly,
-					options.BypassCheck
+					options.BypassCheck,
+                    options.ForceInstall
 				);
 		}
 	}
@@ -109,7 +112,12 @@ namespace Randal.Sql.Deployer.App
 				.As('e', "exchangePath")
 				.WithDescription(ExchangePathText)
 				.SetDefault(null);
-		}
+
+            Setup(x => x.ForceInstall)
+                .As('f', "forceInstall")
+                .WithDescription(ForceInstall)
+                .SetDefault(false);
+        }
 
 		public const string
 			ProjectFolderHelpText = @"The project folder containg the config.json or config.xml and all associated SQL scripts.",
@@ -121,7 +129,8 @@ namespace Randal.Sql.Deployer.App
 			RollbackHelptText = "Rollback the transaction, even if there were no errors.",
 			CheckFilesOnlyText = "Checks the scripts against provided patterns and no scripts will be deployed.  Cannot be used with noTrans.",
 			BypassCheckText = "Bypasses the pattern checker for scripts.",
-			ExchangePathText = "The data exchange channel path."
+            ForceInstall = "Force installer to run regardless of when it last ran",
+            ExchangePathText = "The data exchange channel path."
 		;
 
 		

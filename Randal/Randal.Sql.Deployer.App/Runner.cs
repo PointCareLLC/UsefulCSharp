@@ -181,7 +181,7 @@ namespace Randal.Sql.Deployer.App
 		{
 			using(var deployer = new SqlServerDeployer(config, project, connectionManager, _logger))
 			{
-				if (deployer.CanProceed() == false)
+				if (deployer.CanProceed() == false && _settings.ForceInstall == false)
 					throw new RunnerException("Cannot proceed! A more recent version has already been deployed.", RunnerResolution.StaleDeployment);
 
 				if (deployer.DeployScripts() == Returned.Failure)
